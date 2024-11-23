@@ -1,8 +1,8 @@
-**Project Title**
-TagValue pair to Json
+**Title - TagValue pair to Json**
 
 **How to run**
 - resources/input.txt -> Input String is given
-- resources/tagNumberMapping -> Mapping of labels to tag number
-- Run App.Java
-- Output -> output.json is generated
+- resources/tagNumberMapping.txt -> Mapping of labels to tag number
+- clone this as Maven project and download all dependencie using 'mvn clean install' command
+- run 'App.Java' 
+- output.json is generated
