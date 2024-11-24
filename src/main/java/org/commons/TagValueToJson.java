@@ -14,32 +14,18 @@ import java.io.IOException;
 import java.util.*;
 
 public class TagValueToJson {
-    private final static Logger logger = LoggerFactory.getLogger(App.class);
+    private final static Logger logger = LoggerFactory.getLogger(TagValueToJson.class);
 
-    public void convertTagValueToJson(){
+    public void convertTagValueToJson(BufferedReader input_br, BufferedReader tag_label_map_br, Map<String, Boolean> hasGroupMap, String outputFileName){
 
         Map<String, Map<String, String>> typeMap = new LinkedHashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
         ArrayNode rootNode = objectMapper.createArrayNode();
 
-        /* Assigning presence of group to each Object type */
-        Map<String, Boolean> hasGroupMap = new HashMap<String, Boolean>()
-        {
-            {
-                put("A", true);
-                put("B", false);
-            }
-        };
-
         try {
-            logger.info("reading the tag number mapping file..");
-            BufferedReader br = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\src\\main\\resources\\tagNumberMapping.txt"));
-            logger.info("reading the input file..");
-            BufferedReader br2 = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\src\\main\\resources\\input.txt"));
-
             /* Creating a map for each object type which holds the label for each tag*/
             String l;
-            while ((l = br.readLine()) != null) {
+            while ((l = tag_label_map_br.readLine()) != null) {
                 String[] types = l.split(":");
                 if (types.length > 0) {
                     String type = types[0].trim();
@@ -62,15 +48,15 @@ public class TagValueToJson {
             logger.info("iterating the input file and converting to json");
 
             String s;
-            while ((s = br2.readLine()) != null) {
+            while ((s = input_br.readLine()) != null) {
                 String type = getObjectType(s);
                 ObjectNode node = getJsonForInput(typeMap.get(type), hasGroupMap.get(type), s);
                 logger.info("Json for the input string: " + node);
                 rootNode.add(node);
             }
 
-            logger.info("writing the json to output.json");
-            writeToJson(rootNode);
+            logger.info("writing the json to output file");
+            writeToJson(rootNode, outputFileName);
 
         } catch (Exception e) {
             logger.error("Exception: ", e);
@@ -171,10 +157,10 @@ public class TagValueToJson {
      *
      * @param rootNode data in ArrayNode format.
      */
-    public static void writeToJson(ArrayNode rootNode){
+    public static void writeToJson(ArrayNode rootNode, String outputFileName){
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File("output.json"), rootNode);
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(outputFileName), rootNode);
         } catch (IOException e) {
             logger.error("Exception occurred: ",e);
         }
